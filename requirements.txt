@@ -1,0 +1,7 @@
+numpy==2.3.5
+librosa==0.11.0
+fastapi==0.128.7
+json5==0.13.0
+jsonpointer==3.0.0
+jsonschema==4.26.0
+jsonschema-specifications==2025.9.1
