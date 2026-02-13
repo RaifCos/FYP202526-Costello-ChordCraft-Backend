@@ -1,16 +1,13 @@
-from chord_cnn_lstm.chordnet_ismir_naive import ChordNet, chord_limit, ChordNetCNN
+from chord_cnn_lstm.chordnet_ismir_naive import ChordNet
 from chord_cnn_lstm.mir.nn.train import NetworkInterface
-from chord_cnn_lstm.extractors.cqt import CQTV2, SimpleChordToID
+from chord_cnn_lstm.extractors.cqt import CQTV2
 from chord_cnn_lstm.mir import io, DataEntry
 from chord_cnn_lstm.extractors.xhmm_ismir import XHMMDecoder
 import numpy as np
-from chord_cnn_lstm.io_new.chordlab_io import ChordLabIO
 from chord_cnn_lstm.settings import DEFAULT_SR, DEFAULT_HOP_LENGTH
-import sys
 import os
 import librosa
 import traceback
-import json
 
 # Get the absolute path to the current directory
 current_dir = os.path.dirname(os.path.abspath(__file__))
@@ -140,7 +137,7 @@ def chord_recognition(audio_path, chord_dict_name='submission'):
         ]
 
         # Build final JSON structure
-        output_json = {
+        output = {
             "audio_file": os.path.basename(audio_path),
             "sample_rate": entry.prop.sr,
             "hop_length": entry.prop.hop_length,
@@ -149,7 +146,7 @@ def chord_recognition(audio_path, chord_dict_name='submission'):
             "chords": json_chords
         }
 
-        return output_json
+        return output
 
     except Exception as e:
         print(f"Error in chord recognition: {e}")
