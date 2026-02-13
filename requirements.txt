@@ -1,5 +1,5 @@
+# API Dependencies 
 numpy==2.3.5
-librosa==0.11.0
 fastapi==0.128.7
 uvicorn==0.27.0
 python-multipart==0.0.22
@@ -7,3 +7,18 @@ json5==0.13.0
 jsonpointer==3.0.0
 jsonschema==4.26.0
 jsonschema-specifications==2025.9.1
+
+# chord-cnn-lstm Model Dependencies
+torch>=1.4.0
+pretty_midi>=0.2.9
+h5py>=2.9.0
+matplotlib>=2.2.4
+mir_eval>=0.5
+pydub>=0.23.1
+joblib>=0.13.2
+librosa>=0.7.2
+figures>=0.3.16
+jams>=0.3.4
+numpy>=1.19.2
+pumpp>=0.5.0
+scikit_learn>=0.23.2

@@ -6,7 +6,7 @@ import os
 
 app = FastAPI()
 
-ACR_SCRIPT = "scripts/modelLibrosa.py"
+ACR_SCRIPT = "scripts/runModel.py"
 
 @app.post("/run")
 async def runChordExtraction(file: UploadFile = File(...)):
