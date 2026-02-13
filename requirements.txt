@@ -1,6 +1,7 @@
 numpy==2.3.5
 librosa==0.11.0
 fastapi==0.128.7
+uvicorn==0.27.0
 json5==0.13.0
 jsonpointer==3.0.0
 jsonschema==4.26.0
