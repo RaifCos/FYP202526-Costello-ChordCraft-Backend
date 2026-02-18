@@ -16,6 +16,17 @@ current_dir = os.path.dirname(os.path.abspath(__file__))
 # Use the same model file names as the original implementation
 MODEL_NAMES = [os.path.join(current_dir, 'cache_data', f'joint_chord_net_ismir_naive_v1.0_reweight(0.0,10.0)_s{i}.best') for i in range(5)]
 
+_models = None
+
+def getModels():
+    global _models
+    if _models is None:
+        _models = []
+        for model_name in MODEL_NAMES:
+            net = NetworkInterface(ChordNet(None), model_name, load_checkpoint=False)
+            _models.append(net)
+    return _models
+
 def chord_recognition(audio_path, chord_dict_name='submission'):
     """
     Real implementation of chord recognition using the Chord-CNN-LSTM model.
@@ -70,10 +81,10 @@ def chord_recognition(audio_path, chord_dict_name='submission'):
             raise
 
         # Run inference with all models and average the results
+        models = getModels()
         probs = []
-        for model_name in MODEL_NAMES:
+        for model_name, net in models:
             try:
-                net = NetworkInterface(ChordNet(None), model_name, load_checkpoint=False)
                 print(f'Inference: {model_name} on {audio_path}')
                 model_probs = net.inference(entry.cqt)
 

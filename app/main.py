@@ -25,7 +25,10 @@ async def runChordExtraction(file: UploadFile = File(...)):
         print("Running Model...")
         sys.path.append(os.path.join(os.path.dirname(__file__), '..', 'scripts'))
         import runModel
-        result = await run_in_threadpool(runModel.main, tempFile)
+        result = await asyncio.wait_for(
+            run_in_threadpool(runModel.main, tempFile),
+            timeout=120.0
+        )
         print("Model Completed.")
 
         if result is None:
