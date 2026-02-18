@@ -27,7 +27,7 @@ async def runChordExtraction(file: UploadFile = File(...)):
             ["python", ACR_SCRIPT, tempFile],
             capture_output=True,
             text=True,
-            timeout=30,
+            timeout=60,
             check=True
         )
 
