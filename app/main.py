@@ -1,19 +1,18 @@
 from fastapi import FastAPI, UploadFile, File, HTTPException
-import subprocess
+from fastapi.concurrency import run_in_threadpool
 import tempfile
-import json
 import os
+from chord_cnn_lstm import chord_recognition
 
 app = FastAPI()
-
-ACR_SCRIPT = "scripts/runModel.py"
 
 @app.post("/run")
 async def runChordExtraction(file: UploadFile = File(...)):
     ext = os.path.splitext(file.filename)[1].lower()
-    if not ext == ".mp3":
+    if ext != ".mp3":
         raise HTTPException(status_code=400, detail="Invalid file type")
 
+    tempFile = None
     try:
         with tempfile.NamedTemporaryFile(
             suffix=os.path.splitext(file.filename)[1],
@@ -23,34 +22,19 @@ async def runChordExtraction(file: UploadFile = File(...)):
             while chunk := await file.read(1024 * 1024):
                 tmp.write(chunk)
 
-        result = subprocess.run(
-            ["python", ACR_SCRIPT, tempFile],
-            capture_output=True,
-            text=True,
-            timeout=120,
-            check=True
-        )
+        result = await run_in_threadpool(chord_recognition.main, tempFile)
 
-        return json.loads(result.stdout)
+        if result is None:
+            raise HTTPException(status_code=500, detail="Chord Extraction Model failed to produce a result")
 
-    except subprocess.TimeoutExpired:
-        raise HTTPException(status_code=504, detail="Chord Extraction Model timed out")
+        return result
 
-    except subprocess.CalledProcessError as e:
-        raise HTTPException(
-            status_code=500,
-            detail={
-                "message": "Chord Extraction Model failed",
-                "stderr": e.stderr
-            }
-        )
+    except HTTPException:
+        raise
 
-    except json.JSONDecodeError:
-        raise HTTPException(
-            status_code=500,
-            detail="Chord Extraction Model did not return valid JSON"
-        )
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Chord Extraction Model failed: {str(e)}")
 
     finally:
-        if "tempFile" in locals() and os.path.exists(tempFile):
+        if tempFile and os.path.exists(tempFile):
             os.remove(tempFile)
