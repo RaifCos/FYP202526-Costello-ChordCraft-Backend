@@ -8,6 +8,7 @@ app = FastAPI()
 
 @app.post("/run")
 async def runChordExtraction(file: UploadFile = File(...)):
+    print("API Endpoint reached.")
     ext = os.path.splitext(file.filename)[1].lower()
     if ext != ".mp3":
         raise HTTPException(status_code=400, detail="Invalid file type")
@@ -21,11 +22,11 @@ async def runChordExtraction(file: UploadFile = File(...)):
             tempFile = tmp.name
             while chunk := await file.read(1024 * 1024):
                 tmp.write(chunk)
-
+        print("Running Model...")
         sys.path.append(os.path.join(os.path.dirname(__file__), '..', 'scripts'))
         import runModel
-        
         result = await run_in_threadpool(runModel.main, tempFile)
+        print("Model Completed.")
 
         if result is None:
             raise HTTPException(status_code=500, detail="Chord Extraction Model failed to produce a result")
