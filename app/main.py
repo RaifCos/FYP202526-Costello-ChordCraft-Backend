@@ -2,7 +2,6 @@ from fastapi import FastAPI, UploadFile, File, HTTPException
 from fastapi.concurrency import run_in_threadpool
 import tempfile
 import os
-from chord_cnn_lstm import chord_recognition
 
 app = FastAPI()
 
