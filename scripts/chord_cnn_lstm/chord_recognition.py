@@ -24,7 +24,7 @@ def getModels():
         _models = []
         for model_name in MODEL_NAMES:
             net = NetworkInterface(ChordNet(None), model_name, load_checkpoint=False)
-            _models.append(net)
+            _models.append((model_name, net))
     return _models
 
 def chord_recognition(audio_path, chord_dict_name='submission'):
