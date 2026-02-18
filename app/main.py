@@ -22,11 +22,7 @@ async def runChordExtraction(file: UploadFile = File(...)):
             while chunk := await file.read(1024 * 1024):
                 tmp.write(chunk)
 
-        script_path = os.path.join(os.path.dirname(__file__), 'scripts')
-
-        if script_path not in sys.path:
-            sys.path.append(script_path)
-        
+        sys.path.append(os.path.join(os.path.dirname(__file__), '..', 'scripts'))
         import runModel
         
         result = await run_in_threadpool(runModel.main, tempFile)
