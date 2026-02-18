@@ -21,7 +21,14 @@ async def runChordExtraction(file: UploadFile = File(...)):
             while chunk := await file.read(1024 * 1024):
                 tmp.write(chunk)
 
-        result = await run_in_threadpool(chord_recognition.main, tempFile)
+        script_path = os.path.join(os.path.dirname(__file__), 'scripts')
+
+        if script_path not in sys.path:
+            sys.path.append(script_path)
+        
+        import runModel
+        
+        result = await run_in_threadpool(runModel.main, tempFile)
 
         if result is None:
             raise HTTPException(status_code=500, detail="Chord Extraction Model failed to produce a result")
