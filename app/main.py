@@ -12,7 +12,7 @@ async def runChordExtraction(file: UploadFile = File(...)):
     print("API Endpoint reached.")
     ext = os.path.splitext(file.filename)[1].lower()
     if ext != ".mp3":
-        raise HTTPException(status_code=400, detail="Invalid file type {ext}")
+        raise HTTPException(status_code=400, detail=f"Invalid file type {ext}")
 
     tempFile = None
     try:
