@@ -10,7 +10,7 @@ This repository contains an implementation of the chord-CNN-LSTM AI model, which
 The model is ran using the ```scripts/runModel.py``` handler script, which calls the ```chord_recognition``` module, passing through the path of the target audio file. The model returns a python object to the handler script, which is then seralized into a JSON-formatted string. The output includes each chord detected in the audio processed, with timestamps denoting when in the audio the chord begins and ends. 
 
 ## :computer: API Handling
-The ```àpp/main.py``` script handles incoming API requests. When a request is made to the ```/run``` endpoint, the script checks that an audio file has been provided to process, before storing it in a temporary location so it can be accessed by the ACR model. The API script then calls the model handler script, returning the final result to the user. The API script also conatains error handling for invalid file formats and any ACR model errors. 
+The ```app/main.py``` script handles incoming API requests. When a request is made to the ```/run``` endpoint, the script checks that an audio file has been provided to process, before storing it in a temporary location so it can be accessed by the ACR model. The API script then calls the model handler script, returning the final result to the user. The API script also conatains error handling for invalid file formats and any ACR model errors. 
 
 To ensure end-user privacy, the temporary file will always be removed after processing, regardless if the model succeeded or not. 
 
