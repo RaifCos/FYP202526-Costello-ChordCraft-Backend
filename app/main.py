@@ -32,10 +32,13 @@ async def runChordExtraction(file: UploadFile = File(...)):
             timeout=120.0
         )
         print("Model Completed.")
-
+        
         if result is None:
             raise HTTPException(status_code=500, detail="Chord Extraction Model failed to produce a result")
 
+        if isinstance(result, str):
+            result = json.loads(result)
+        
         return JSONResponse(content=result)
 
     except HTTPException:
