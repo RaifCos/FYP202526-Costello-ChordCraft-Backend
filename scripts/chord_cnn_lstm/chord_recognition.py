@@ -150,8 +150,8 @@ def chord_recognition(audio_path, chord_dict_name='submission'):
         # Build final JSON structure
         output = {
             "audio_file": os.path.basename(audio_path),
-            "sample_rate": entry.prop.sr,
-            "hop_length": entry.prop.hop_length,
+            "sample_rate": int(entry.prop.sr),
+            "hop_length": int(entry.prop.hop_length),
             "chord_dictionary": chord_dict_name,
             "num_chords": len(json_chords),
             "chords": json_chords
