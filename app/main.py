@@ -37,6 +37,7 @@ async def runChordExtraction(file: UploadFile = File(...)):
             raise HTTPException(status_code=500, detail="Chord Extraction Model failed to produce a result")
 
         return JSONResponse(content=result)
+
     except HTTPException:
         raise
 
