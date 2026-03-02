@@ -1,5 +1,6 @@
 from fastapi import FastAPI, UploadFile, File, HTTPException
 from fastapi.concurrency import run_in_threadpool
+from fastapi.responses import JSONResponse
 import asyncio
 import tempfile
 import sys
@@ -35,8 +36,7 @@ async def runChordExtraction(file: UploadFile = File(...)):
         if result is None:
             raise HTTPException(status_code=500, detail="Chord Extraction Model failed to produce a result")
 
-        return result
-
+        return JSONResponse(content=result)
     except HTTPException:
         raise
 
