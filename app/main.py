@@ -1,20 +1,46 @@
+from certifi import contents
+
 from fastapi import FastAPI, UploadFile, File, HTTPException
 from fastapi.concurrency import run_in_threadpool
 from fastapi.responses import JSONResponse
-import asyncio
+from pathlib import Path
 import tempfile
+import asyncio
+import magic
 import json
 import sys
 import os
 
 app = FastAPI()
 
+# Handle Model Importation.
+sys.path.append(os.path.join(os.path.dirname(__file__), '..', 'scripts'))
+import runModel
+
+MAX_FILE_SIZE = 50 * 1024 * 1024  # 50 MB
+
+sys.path.append(os.path.join(os.path.dirname(__file__), '..', 'scripts'))
+
 @app.post("/run")
 async def runChordExtraction(file: UploadFile = File(...)):
     print("API Endpoint reached.")
     ext = os.path.splitext(file.filename)[1].lower()
+
+    # Sanitize filename.
+    safeName = Path(file.filename).name
+    if not safeName:
+        raise HTTPException(status_code=400, detail="Invalid filename provided.")
+
+    # Only Accept MP3 Files.
     if ext != ".mp3":
-        raise HTTPException(status_code=400, detail=f"Invalid file type {ext}")
+        raise HTTPException(status_code=400, detail=f"{ext} is an invalid file type, chord-CNN-LSTM only accepts .MP3 files.")
+    
+    # Check MIME type to prevent malicious files.
+    contents = await file.read(2048)
+    await file.seek(0)
+    mimeType = magic.from_buffer(contents, mime=True)
+    if mimeType != "audio/mpeg":
+        raise HTTPException(status_code=400, detail=f"{mimeType} is an invalid MIME type, chord-CNN-LSTM only accepts .MP3 files.")
 
     tempFile = None
     try:
@@ -22,21 +48,35 @@ async def runChordExtraction(file: UploadFile = File(...)):
             suffix=os.path.splitext(file.filename)[1],
             delete=False
         ) as tmp:
+            # Make sure file doesn't exceed limit. 
+            totalSize = 0
             tempFile = tmp.name
-            while chunk := await file.read(1024 * 1024):
-                tmp.write(chunk)
+            try:
+                # Timeout audio loading after 30 seconds. 
+                async with asyncio.timeout(30):
+                    while chunk := await file.read(1024 * 1024):
+                        totalSize += len(chunk)
+                        if totalSize > MAX_FILE_SIZE:   
+                            raise HTTPException(status_code=400, detail="File size exceeds 50 MB limit.")
+                        tmp.write(chunk)
+            except asyncio.TimeoutError:
+                raise HTTPException(status_code=408, detail="File upload timed out")
+
+        # Run chord-CNN-LSTM Model.        
         print("Running Model...")
         sys.path.append(os.path.join(os.path.dirname(__file__), '..', 'scripts'))
-        import runModel
+
         result = await asyncio.wait_for(
             run_in_threadpool(runModel.main, tempFile),
             timeout=120.0
         )
+
         print("Model Completed.")
         
         if result is None:
-            raise HTTPException(status_code=500, detail="Chord Extraction Model failed to produce a result")
+            raise HTTPException(status_code=500, detail="chord-CNN-LSTM Model failed to produce a result.")
 
+        # Model Successfully produces a result! 
         if isinstance(result, str):
             result = json.loads(result)
         
@@ -45,8 +85,11 @@ async def runChordExtraction(file: UploadFile = File(...)):
     except HTTPException:
         raise
 
+    except asyncio.TimeoutError:
+        raise HTTPException(status_code=504, detail="Model timed out after 120 seconds.")
+
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Chord Extraction Model failed: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"chord-CNN-LSTM Model Error: {str(e)}")
 
     finally:
         if tempFile and os.path.exists(tempFile):
