@@ -37,16 +37,16 @@ async def runChordExtraction(request: Request, file: UploadFile = File(...)):
     if not safeName:
         raise HTTPException(status_code=400, detail="Invalid filename provided.")
     
-    # Only Accept MP3 Files.
-    if ext != ".mp3":
-        raise HTTPException(status_code=400, detail=f"{ext} is an invalid file type, chord-CNN-LSTM only accepts .MP3 files.")
+    # Only Accept MP3 and WAV Files.
+    if ext != ".mp3" and ext != ".wav":
+        raise HTTPException(status_code=400, detail=f"{ext} is an invalid file type, chord-CNN-LSTM only accepts .MP3 or .WAV files.")
     
     # Check MIME type to prevent malicious files.
     contents = await file.read(2048)
     await file.seek(0)
     mimeType = magic.from_buffer(contents, mime=True)
-    if mimeType != "audio/mpeg":
-        raise HTTPException(status_code=400, detail=f"{mimeType} is an invalid MIME type, chord-CNN-LSTM only accepts .MP3 files.")
+    if mimeType != "audio/mpeg" and mimeType != "audio/x-wav":
+        raise HTTPException(status_code=400, detail=f"{mimeType} is an invalid MIME type, chord-CNN-LSTM only accepts .MP3 or .WAV files.")
     
     tempFile = None
     try:
