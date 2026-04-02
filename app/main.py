@@ -45,7 +45,10 @@ async def runChordExtraction(request: Request, file: UploadFile = File(...)):
     contents = await file.read(2048)
     await file.seek(0)
     mimeType = magic.from_buffer(contents, mime=True)
-    if mimeType != "audio/mpeg" and mimeType != "audio/x-wav":
+
+    # common audio MIME variants + fallback for some clients sending binary as octet-stream
+    valid_mime_types = ["audio/mpeg", "audio/mp3", "audio/wav", "audio/x-wav", "application/octet-stream"]
+    if mimeType not in valid_mime_types:
         raise HTTPException(status_code=400, detail=f"{mimeType} is an invalid MIME type, chord-CNN-LSTM only accepts .MP3 or .WAV files.")
     
     tempFile = None
