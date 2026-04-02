@@ -51,6 +51,7 @@ async def runChordExtraction(request: Request, file: UploadFile = File(...)):
     if mimeType not in valid_mime_types:
         raise HTTPException(status_code=400, detail=f"{mimeType} is an invalid MIME type, chord-CNN-LSTM only accepts .MP3 or .WAV files.")
     
+    print("Writing Temporary File...")
     tempFile = None
     try:
         with tempfile.NamedTemporaryFile(

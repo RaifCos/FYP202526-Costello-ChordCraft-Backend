@@ -35,7 +35,7 @@ def chord_recognition(audio_path, chord_dict_name='submission'):
         audio_path: Path to the audio file
         chord_dict_name: Name of the chord dictionary to use
     """
-    print(f"Running chord recognition on {audio_path} with chord_dict={chord_dict_name}")
+    #print(f"Running chord recognition on {audio_path} with chord_dict={chord_dict_name}")
 
     # Use absolute paths for template files
     template_file = os.path.join(current_dir, 'data', f'{chord_dict_name}_chord_list.txt')
@@ -60,12 +60,12 @@ def chord_recognition(audio_path, chord_dict_name='submission'):
             entry.prop.set('sr', sr)
 
         # Debug: Print audio information
-        print(f"Audio file: {audio_path}")
-        print(f"Audio duration: {len(entry.music) / entry.prop.sr:.2f} seconds")
-        print(f"Audio sample rate: {entry.prop.sr} Hz")
-        print(f"Audio shape: {entry.music.shape}")
-        print(f"Audio min: {np.min(entry.music):.6f}, max: {np.max(entry.music):.6f}, mean: {np.mean(entry.music):.6f}")
-        print(f"Audio non-zero elements: {np.count_nonzero(entry.music)} out of {entry.music.size} ({np.count_nonzero(entry.music)/entry.music.size*100:.2f}%)")
+        #print(f"Audio file: {audio_path}")
+        #print(f"Audio duration: {len(entry.music) / entry.prop.sr:.2f} seconds")
+        #print(f"Audio sample rate: {entry.prop.sr} Hz")
+        #print(f"Audio shape: {entry.music.shape}")
+        #print(f"Audio min: {np.min(entry.music):.6f}, max: {np.max(entry.music):.6f}, mean: {np.mean(entry.music):.6f}")
+        #print(f"Audio non-zero elements: {np.count_nonzero(entry.music)} out of {entry.music.size} ({np.count_nonzero(entry.music)/entry.music.size*100:.2f}%)")
 
         # Extract CQT features
         try:
@@ -73,11 +73,10 @@ def chord_recognition(audio_path, chord_dict_name='submission'):
             entry.append_extractor(CQTV2, 'cqt')
 
             # Debug: Print CQT information
-            print(f"CQT shape: {entry.cqt.shape}")
-            print(f"CQT min: {np.min(entry.cqt):.6f}, max: {np.max(entry.cqt):.6f}, mean: {np.mean(entry.cqt):.6f}")
-            print(f"CQT non-zero elements: {np.count_nonzero(entry.cqt)} out of {entry.cqt.size} ({np.count_nonzero(entry.cqt)/entry.cqt.size*100:.2f}%)")
+            #print(f"CQT shape: {entry.cqt.shape}")
+            #print(f"CQT min: {np.min(entry.cqt):.6f}, max: {np.max(entry.cqt):.6f}, mean: {np.mean(entry.cqt):.6f}")
+            #print(f"CQT non-zero elements: {np.count_nonzero(entry.cqt)} out of {entry.cqt.size} ({np.count_nonzero(entry.cqt)/entry.cqt.size*100:.2f}%)")
         except Exception as e:
-            print(f"Error extracting CQT features: {e}")
             raise
 
         # Run inference with all models and average the results
@@ -85,19 +84,17 @@ def chord_recognition(audio_path, chord_dict_name='submission'):
         probs = []
         for model_name, net in models:
             try:
-                print(f'Inference: {model_name} on {audio_path}')
+                #print(f'Inference: {model_name} on {audio_path}')
                 model_probs = net.inference(entry.cqt)
 
                 # Debug: Print raw probability shapes and values
-                print(f"Model {model_name} probability shapes:")
+                #print(f"Model {model_name} probability shapes:")
                 for i, prob in enumerate(model_probs):
-                    print(f"  Prob {i} shape: {prob.shape}")
+                    #print(f"  Prob {i} shape: {prob.shape}")
                     if i == 0:  # Triad probabilities
-                        print(f"  First few triad probabilities (first frame):")
+                        #print(f"  First few triad probabilities (first frame):")
                         # Print top 5 triad probabilities for the first frame
                         top_indices = np.argsort(prob[0])[-5:][::-1]
-                        for idx in top_indices:
-                            print(f"    Index {idx}: {prob[0][idx]:.6f}")
 
                 probs.append(model_probs)
             except Exception as e:
@@ -112,29 +109,27 @@ def chord_recognition(audio_path, chord_dict_name='submission'):
         probs = [np.mean([p[i] for p in probs], axis=0) for i in range(len(probs[0]))]
 
         # Debug: Print averaged probability shapes and values
-        print("Averaged probability shapes:")
+        #print("Averaged probability shapes:")
         for i, prob in enumerate(probs):
-            print(f"  Prob {i} shape: {prob.shape}")
+            #print(f"  Prob {i} shape: {prob.shape}")
             if i == 0:  # Triad probabilities
-                print(f"  First few averaged triad probabilities (first frame):")
+                #print(f"  First few averaged triad probabilities (first frame):")
                 # Print top 5 triad probabilities for the first frame
                 top_indices = np.argsort(prob[0])[-5:][::-1]
-                for idx in top_indices:
-                    print(f"    Index {idx}: {prob[0][idx]:.6f}")
                 # Check if "N" chord (index 0) has high probability
-                print(f"    'N' chord (index 0) probability: {prob[0][0]:.6f}")
+                # print(f"    'N' chord (index 0) probability: {prob[0][0]:.6f}")
 
         # Debug: Print HMM decoder parameters
-        print(f"HMM decoder parameters:")
-        print(f"  diff_trans_penalty: {hmm.diff_trans_penalty}")
-        print(f"  beat_trans_penalty: {hmm.beat_trans_penalty}")
-        print(f"  use_bass: {hmm.use_bass}")
-        print(f"  use_7: {hmm.use_7}")
-        print(f"  use_extended: {hmm.use_extended}")
-        print(f"  Number of chord templates: {len(hmm.chord_names)}")
+        #print(f"HMM decoder parameters:")
+        #print(f"  diff_trans_penalty: {hmm.diff_trans_penalty}")
+        #print(f"  beat_trans_penalty: {hmm.beat_trans_penalty}")
+        #print(f"  use_bass: {hmm.use_bass}")
+        #print(f"  use_7: {hmm.use_7}")
+        #print(f"  use_extended: {hmm.use_extended}")
+        #print(f"  Number of chord templates: {len(hmm.chord_names)}")
 
         # Decode the chord sequence using the HMM
-        print("Running HMM decoder...")
+        #print("Running HMM decoder...")
         chordlab = hmm.decode_to_chordlab(entry, probs, False)
 
         # Convert chordlab to JSON-serializable format
