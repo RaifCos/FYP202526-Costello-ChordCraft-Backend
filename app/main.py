@@ -78,7 +78,7 @@ async def runChordExtraction(request: Request, file: UploadFile = File(...)):
         
         result = await asyncio.wait_for(
             run_in_threadpool(runModel.main, tempFile),
-            timeout=30.0
+            timeout=40.0
         )
 
         print("Model Completed.")
@@ -96,7 +96,7 @@ async def runChordExtraction(request: Request, file: UploadFile = File(...)):
         raise
 
     except asyncio.TimeoutError:
-        raise HTTPException(status_code=504, detail="Model timed out after 120 seconds.")
+        raise HTTPException(status_code=504, detail="Model timed out after 40 seconds.")
     
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"chord-CNN-LSTM Model Error: {str(e)}")
