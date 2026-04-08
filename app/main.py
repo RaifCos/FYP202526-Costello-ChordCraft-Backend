@@ -78,7 +78,7 @@ async def runChordExtraction(request: Request, file: UploadFile = File(...)):
         
         result = await asyncio.wait_for(
             run_in_threadpool(runModel.main, tempFile),
-            timeout=120.0
+            timeout=30.0
         )
 
         print("Model Completed.")
